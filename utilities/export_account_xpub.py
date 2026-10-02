@@ -3,8 +3,6 @@ import json
 import shutil
 import subprocess
 import sys
-from urllib.parse import quote
-
 ACCOUNT_TYPES = [
     ("Legacy single-sig", "BIP44", 44),
     ("Nested SegWit single-sig", "BIP49", 49),
