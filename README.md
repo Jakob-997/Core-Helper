@@ -19,7 +19,7 @@ It is intentionally narrow:
 - does not write keys to disk or use the clipboard
 - does not use `shell=True`
 
-The utility targets Bitcoin Core 32.x and was initially developed against Bitcoin Core 32.0rc2.
+The utility targets Bitcoin Core 32.x during the 32.0 release-candidate cycle.
 
 ### Requirements
 
