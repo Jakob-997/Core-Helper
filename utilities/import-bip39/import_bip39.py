@@ -10,7 +10,12 @@ import unicodedata
 
 BASE58 = b"123456789ABCDEFGHJKLMNPQRSTUVWXYZabcdefghijkmnopqrstuvwxyz"
 SECP256K1_ORDER = 0xFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFEBAAEDCE6AF48A03BBFD25E8CD0364141
-ADDRESS_TYPES = ("legacy", "p2sh-segwit", "bech32", "bech32m")
+ADDRESS_TYPES = (
+    ("Legacy (BIP44)", "legacy"),
+    ("Nested SegWit (BIP49)", "p2sh-segwit"),
+    ("Native SegWit (BIP84)", "bech32"),
+    ("Taproot (BIP86)", "bech32m"),
+)
 TEST_CHAINS = {"test", "testnet4", "signet", "regtest"}
 
 
@@ -194,30 +199,42 @@ def import_into_core(wallet, xprv):
         fail("Unexpected response from addhdkey.")
 
     master_xpub = added["xpub"]
+    public_descriptors = []
 
-    for address_type in ADDRESS_TYPES:
+    for label, address_type in ADDRESS_TYPES:
         options = json.dumps({"hdkey": master_xpub})
         created = rpc(["createwalletdescriptor", address_type, options], wallet)
-        if not isinstance(created, dict) or not isinstance(created.get("descs"), list):
+        descs = created.get("descs") if isinstance(created, dict) else None
+        if not isinstance(descs, list) or len(descs) != 2 or not all(isinstance(d, str) for d in descs):
             fail(f"Unexpected response from createwalletdescriptor ({address_type}).")
 
+        public_descriptors.append((f"{label} - receive", descs[0]))
+        public_descriptors.append((f"{label} - change", descs[1]))
 
-def show_mnemonic_qr(qrcode, mnemonic):
-    qr = qrcode.QRCode(border=2)
-    qr.add_data(mnemonic)
-    qr.make(fit=True)
+    return public_descriptors
 
-    sys.stdout.write("\033[?1049h\033[2J\033[H")
-    sys.stdout.flush()
-    try:
-        print("SECRET - BIP39 mnemonic QR")
-        print("This QR contains the mnemonic words only, not the BIP39 passphrase.")
+
+def show_public_descriptors(qrcode, descriptors):
+    print()
+    print("Public wallet descriptors:")
+    print()
+
+    for label, descriptor in descriptors:
+        print(label)
+        print(descriptor)
         print()
+
+    print("QR codes:")
+    for i, (label, descriptor) in enumerate(descriptors, 1):
+        print()
+        print(f"[{i}/{len(descriptors)}] {label}")
+        qr = qrcode.QRCode(border=2)
+        qr.add_data(descriptor)
+        qr.make(fit=True)
         qr.print_ascii(out=sys.stdout, tty=sys.stdout.isatty())
-        input("\nPress Enter to hide the QR...")
-    finally:
-        sys.stdout.write("\033[2J\033[H\033[?1049l")
-        sys.stdout.flush()
+
+        if i != len(descriptors):
+            input("\nPress Enter for next descriptor QR...")
 
 
 def main():
@@ -250,18 +267,18 @@ def main():
 
     wallet = create_blank_wallet(wallet_name, wallet_passphrase)
     try:
-        import_into_core(wallet, xprv)
+        public_descriptors = import_into_core(wallet, xprv)
     finally:
         if wallet_passphrase:
             lock_wallet(wallet)
 
-    show_mnemonic_qr(qrcode, mnemonic)
-
     del mnemonic, bip39_passphrase, wallet_passphrase, seed, xprv
+
+    show_public_descriptors(qrcode, public_descriptors)
 
     print()
     print(f"Imported into wallet: {wallet}")
-    print("Created standard Core descriptors: legacy, p2sh-segwit, bech32, bech32m")
+    print("Created standard Core descriptors: BIP44, BIP49, BIP84, BIP86")
     print("No seed words, BIP39 passphrase, wallet passphrase, or xprv were passed in argv.")
     print("Blockchain history was not rescanned.")
 
