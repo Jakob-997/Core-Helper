@@ -21,9 +21,10 @@ The flow is:
 7. create a blank descriptor wallet with private keys enabled
 8. if encrypted, unlock it briefly
 9. import the master key with Bitcoin Core `addhdkey`
-10. let Bitcoin Core create its standard legacy, nested SegWit, native SegWit, and Taproot descriptors
-11. immediately lock an encrypted wallet again
-12. display a terminal QR of the mnemonic words
+10. pass the returned master xpub explicitly as `hdkey` when creating every descriptor
+11. let Bitcoin Core create its standard legacy, nested SegWit, native SegWit, and Taproot descriptors
+12. immediately lock an encrypted wallet again
+13. display a terminal QR of the mnemonic words
 
 ## Security design
 
