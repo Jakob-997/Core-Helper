@@ -27,7 +27,8 @@ The flow is:
 
 ## Security design
 
-- mnemonic, BIP39 passphrase, and wallet passphrase use hidden terminal input
+- the mnemonic is visible while typing so it can be reviewed and corrected
+- the BIP39 passphrase and wallet-encryption passphrase use hidden terminal input
 - the BIP39/BIP32 conversion uses only Python's standard library
 - the helper implements only BIP39 seed conversion and the BIP32 master-key step
 - Bitcoin Core performs child derivation, descriptor creation, address generation, and signing
