@@ -234,7 +234,7 @@ def main():
     wallet_passphrase = get_wallet_passphrase()
     print()
 
-    mnemonic = validate_mnemonic(getpass.getpass("BIP39 mnemonic (hidden): "), wordlist)
+    mnemonic = validate_mnemonic(input("BIP39 mnemonic: "), wordlist)
     bip39_passphrase = getpass.getpass("BIP39 passphrase (blank if none): ")
 
     if bip39_passphrase:
