@@ -97,3 +97,30 @@ The RPC is called with `private=false` explicitly. The helper also aborts if an 
 Bitcoin Core decides which eligible wallet HD key to derive from. If Core cannot determine a unique HD key, `derivehdkey` fails rather than the helper guessing.
 
 The QR encoder only receives the already-public `[fingerprint/path]xpub` string. Verify that scanned QR text exactly matches the text printed above it.
+
+
+## Import BIP39 mnemonic
+
+`utilities/import_bip39.py` imports an English BIP39 mnemonic into an existing blank Bitcoin Core 32.x descriptor wallet.
+
+Run:
+
+```bash
+python3 utilities/import_bip39.py
+```
+
+Design:
+
+- terminal-only hidden mnemonic/passphrase input
+- validates the BIP39 English wordlist and checksum
+- uses only Python's standard library
+- converts BIP39 to the BIP32 master extended private key
+- passes that key to Bitcoin Core with `bitcoin-cli -stdin`
+- Core performs child derivation and creates standard legacy, nested SegWit, native SegWit, and Taproot descriptors
+- no mnemonic, passphrase, seed, or private key is written to disk by the helper
+- no secret is placed in command-line arguments
+- no blockchain rescan is performed automatically
+
+The bundled `utilities/bip39_english.txt` is the official BIP39 English wordlist.
+
+References: BIP39, BIP32, and Bitcoin Core 32.x `addhdkey` / `createwalletdescriptor` wallet RPCs.
