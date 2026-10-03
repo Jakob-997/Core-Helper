@@ -24,7 +24,8 @@ The flow is:
 10. pass the returned master xpub explicitly as `hdkey` when creating every descriptor
 11. let Bitcoin Core create its standard legacy, nested SegWit, native SegWit, and Taproot descriptors
 12. immediately lock an encrypted wallet again
-13. display a terminal QR of the mnemonic words
+13. print the public receive/change descriptors Core created
+14. display each public descriptor as a terminal QR
 
 ## Security design
 
@@ -34,7 +35,8 @@ The flow is:
 - the helper implements only BIP39 seed conversion and the BIP32 master-key step
 - Bitcoin Core performs child derivation, descriptor creation, address generation, and signing
 - sensitive RPC arguments are sent through Bitcoin Core's stdin mechanisms instead of command-line arguments
-- the optional BIP39 passphrase is never included in the QR
+- seed words and the optional BIP39 passphrase are never encoded into a QR
+- the QR output contains only the public descriptors returned by Bitcoin Core
 - the QR is rendered in the terminal; no QR image file or clipboard is used
 - an encrypted wallet is created encrypted from the start, rather than importing the key into an unencrypted wallet and encrypting afterward
 - no blockchain rescan is performed automatically
