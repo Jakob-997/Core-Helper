@@ -113,12 +113,17 @@ Design:
 
 - terminal-only hidden mnemonic/passphrase input
 - validates the BIP39 English wordlist and checksum
-- uses only Python's standard library
+- uses only Python's standard library for the BIP39/BIP32 conversion
+- uses the `qrcode` Python module (`python3-qrcode` on Debian/Tails) only for terminal QR rendering
 - converts BIP39 to the BIP32 master extended private key
 - passes that key to Bitcoin Core with `bitcoin-cli -stdin`
 - Core performs child derivation and creates standard legacy, nested SegWit, native SegWit, and Taproot descriptors
 - no mnemonic, passphrase, seed, or private key is written to disk by the helper
 - no secret is placed in command-line arguments
+- displays a plain-text QR of the mnemonic words in the terminal after a successful import
+- the optional BIP39 passphrase is never included in the QR
+- uses the terminal alternate-screen buffer for the secret QR and hides it when Enter is pressed
+- does not create a QR image file or use the clipboard
 - no blockchain rescan is performed automatically
 
 The bundled `utilities/bip39_english.txt` is the official BIP39 English wordlist.
