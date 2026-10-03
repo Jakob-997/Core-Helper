@@ -19,6 +19,14 @@ def fail(message):
     raise SystemExit(1)
 
 
+def load_qrcode():
+    try:
+        import qrcode
+    except ImportError:
+        fail("Python qrcode module not found. On Debian/Tails it is provided by python3-qrcode.")
+    return qrcode
+
+
 def cli(args, wallet=None, secret=None):
     cmd = ["bitcoin-cli"]
     if wallet:
@@ -162,11 +170,30 @@ def import_into_core(wallet, xprv):
             fail(f"Unexpected response from createwalletdescriptor ({address_type}).")
 
 
+def show_mnemonic_qr(qrcode, mnemonic):
+    qr = qrcode.QRCode(border=2)
+    qr.add_data(mnemonic)
+    qr.make(fit=True)
+
+    sys.stdout.write("\033[?1049h\033[2J\033[H")
+    sys.stdout.flush()
+    try:
+        print("SECRET - BIP39 mnemonic QR")
+        print("This QR contains the mnemonic words only, not the BIP39 passphrase.")
+        print()
+        qr.print_ascii(out=sys.stdout, tty=sys.stdout.isatty())
+        input("\nPress Enter to hide the QR...")
+    finally:
+        sys.stdout.write("\033[2J\033[H\033[?1049l")
+        sys.stdout.flush()
+
+
 def main():
     print("Core Helper - Import BIP39")
     print()
 
     version, chain = core_info()
+    qrcode = load_qrcode()
     print(f"Bitcoin Core: {version}")
     print(f"Network: {chain}")
     print()
@@ -186,6 +213,7 @@ def main():
     seed = mnemonic_seed(mnemonic, passphrase)
     xprv = master_xprv(seed, chain)
     import_into_core(wallet, xprv)
+    show_mnemonic_qr(qrcode, mnemonic)
 
     del mnemonic, passphrase, seed, xprv
 
