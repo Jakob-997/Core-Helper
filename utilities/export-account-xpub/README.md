@@ -15,6 +15,6 @@ Requirements:
 - Python 3
 - Bitcoin Core 32.x with `bitcoin-cli` in PATH
 - a running local Bitcoin Core RPC server
-- `qrencode` for QR display
+- Python `qrcode` module (`python3-qrcode` on Debian/Tails) for terminal QR display
 
-The helper never requests an xprv, seed, mnemonic, or wallet passphrase, and it does not write key material to disk or use the clipboard.
+The helper never requests an xprv, seed, mnemonic, or wallet passphrase. The QR is rendered directly in the terminal with Python's `qrcode` module; it does not create an image file or use the clipboard.
