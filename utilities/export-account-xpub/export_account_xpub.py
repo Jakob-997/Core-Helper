@@ -1,6 +1,5 @@
 #!/usr/bin/env python3
 import json
-import shutil
 import subprocess
 import sys
 ACCOUNT_TYPES = [
@@ -17,6 +16,14 @@ TEST_CHAINS = {"test", "testnet4", "signet", "regtest"}
 def fail(message):
     print(f"Error: {message}", file=sys.stderr)
     raise SystemExit(1)
+
+
+def load_qrcode():
+    try:
+        import qrcode
+    except ImportError:
+        fail("Python qrcode module not found. On Debian/Tails it is provided by python3-qrcode.")
+    return qrcode
 
 
 def run_cli(args, wallet=None):
@@ -149,23 +156,14 @@ def derive_key(wallet, purpose, coin_type, account):
     return path, origin + xpub
 
 
-def show_qr(text):
-    qrencode = shutil.which("qrencode")
-    if qrencode is None:
-        print()
-        print("QR unavailable: qrencode is not installed.")
-        print("Ubuntu: sudo apt install qrencode")
-        return
+def show_qr(qrcode, text):
+    qr = qrcode.QRCode(border=2)
+    qr.add_data(text)
+    qr.make(fit=True)
 
     print()
     print("QR code:")
-    result = subprocess.run(
-        [qrencode, "-t", "ANSIUTF8", text],
-        check=False,
-        text=True,
-    )
-    if result.returncode != 0:
-        fail("qrencode failed.")
+    qr.print_ascii(out=sys.stdout, tty=sys.stdout.isatty())
 
 
 def main():
@@ -173,6 +171,7 @@ def main():
     print()
 
     version = get_core_version()
+    qrcode = load_qrcode()
     chain, coin_type = get_chain()
 
     print(f"Bitcoin Core: {version}")
@@ -206,7 +205,7 @@ def main():
     print("This contains public key information only.")
     print("Verify that scanned QR text exactly matches the text above.")
 
-    show_qr(key_expression)
+    show_qr(qrcode, key_expression)
 
 
 if __name__ == "__main__":
