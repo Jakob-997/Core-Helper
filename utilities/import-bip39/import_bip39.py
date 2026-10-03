@@ -193,8 +193,11 @@ def import_into_core(wallet, xprv):
     if not isinstance(added, dict) or not isinstance(added.get("xpub"), str):
         fail("Unexpected response from addhdkey.")
 
+    master_xpub = added["xpub"]
+
     for address_type in ADDRESS_TYPES:
-        created = rpc(["createwalletdescriptor", address_type], wallet)
+        options = json.dumps({"hdkey": master_xpub})
+        created = rpc(["createwalletdescriptor", address_type, options], wallet)
         if not isinstance(created, dict) or not isinstance(created.get("descs"), list):
             fail(f"Unexpected response from createwalletdescriptor ({address_type}).")
 
