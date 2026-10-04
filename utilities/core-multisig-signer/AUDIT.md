@@ -1,12 +1,13 @@
 # Audit Record
 
+**Bitcoin Core Feature Overlay revision:** `632648b88cdb867ab6372e2850e8a53d00f58552`  
 **Generator blob:** `7bfdf5b73dbecb32dd40debc20d32b4a5c6a3d3e`  
 **Tails launcher blob:** `87a025348e4efa9b3a0fa127df853aaa5c168361`  
 **Bitcoin Core version reviewed:** `v32.0rc2`  
 **Bitcoin Core commit:** `bc795e60dbb2c6e9c9556949731912429290626a`  
 **Review date:** 2026-10-04
 
-This is an AI-assisted source/security review record. It is not an independent professional security audit.
+This is an AI-assisted source/security review record. It is not an independent professional security audit. Review method: [AUDITING.md](AUDITING.md).
 
 ## Scope
 
@@ -78,7 +79,7 @@ The Bitcoin Core Feature Overlay launcher now verifies the adjacent pinned Core 
 
 The first version used `core_multisig_signer.py`, `GUIDE.md`, and `SECURITY.md`.
 
-The utility has now been rebased onto the Bitcoin Core Feature Overlay:
+The utility has now been rebased onto the Bitcoin Core Feature Overlay architecture:
 
 - `generator.py`;
 - `tails.sh`;
