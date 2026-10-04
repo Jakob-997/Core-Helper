@@ -1,6 +1,6 @@
 # Core Multisig Signer Design
 
-This utility follows the CoreVault three-layer architecture.
+This utility follows the [Bitcoin Core Overlay Scaffold](../../templates/bitcoin-core-overlay-scaffold/), a three-layer pattern originally extracted from CoreVault.
 
 ## Trust model
 
