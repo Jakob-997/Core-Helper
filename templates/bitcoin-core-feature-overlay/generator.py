@@ -2,7 +2,7 @@
 """
 PROJECT CUSTOMIZATION REQUIRED.
 
-This file is the Bitcoin Core Overlay Scaffold core-logic layer.
+This file is the Bitcoin Core Feature Overlay core-logic layer.
 Keep Bitcoin/project construction here and OS/runtime behavior in tails.sh.
 """
 

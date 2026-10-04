@@ -4,7 +4,9 @@ PROJECT CUSTOMIZATION REQUIRED.
 
 Do not claim this template's review applies automatically to a utility copied from it.
 
-For each real utility, record:
+Follow [AUDITING.md](AUDITING.md). For each real utility, record:
+
+- canonical Bitcoin Core Feature Overlay commit used;
 
 - exact project commit reviewed;
 - exact generator blob/revision reviewed;
@@ -17,7 +19,7 @@ For each real utility, record:
 - end-to-end test environment and results;
 - upstream Bitcoin Core/BIP references relied upon.
 
-## Overlay scaffold baseline
+## Feature overlay scaffold baseline
 
 The scaffold preserves these design principles:
 

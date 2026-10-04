@@ -1,8 +1,8 @@
-# Bitcoin Core Overlay Scaffold Design
+# Bitcoin Core Feature Overlay Design
 
-The Bitcoin Core Overlay Scaffold is a reusable pattern for building small, auditable extensions around Bitcoin Core without modifying Core itself.
+The Bitcoin Core Feature Overlay is a reusable pattern for implementing small Bitcoin Core features and workflows that are not yet merged upstream, using existing Core RPCs without forking or modifying Core.
 
-It was originally extracted from CoreVault, but the scaffold is now the reusable architecture for new Core Helper utilities.
+Canonical source: [Bitcoin Core Feature Overlay](https://github.com/Jakob-997/Bitcoin-Core-Feature-Overlay). Core Helper carries a downstream snapshot; reusable changes belong upstream. The architecture was originally extracted from CoreVault.
 
 ## Trust model
 
@@ -14,7 +14,7 @@ Prefer delegating Bitcoin-specific operations to a pinned Bitcoin Core release r
 
 | Layer | File | Responsibility |
 | --- | --- | --- |
-| Generator | `generator.py` | Project-specific Bitcoin Core construction logic |
+| Generator | `generator.py` | Minimal feature-specific logic using Bitcoin Core RPCs |
 | Tails launcher | `tails.sh` | Network shutdown, pinned Core verification/extraction, isolated runtime state, Core startup/shutdown |
 | Human procedure | pre/post guides | Preparation, backup, verification, testing, recovery, storage |
 
@@ -28,7 +28,7 @@ The current scaffold baseline uses Bitcoin Core v32.0rc2 and pins the official L
 0255103718033e6aee15fa944717fc277e047b845bff1e7408af0ea732d8d0c1
 ```
 
-A new utility may retain that exact reviewed baseline or deliberately move to another release, but a pin change requires testing and review against that exact Core version.
+This inherited pin is not evidence that this scaffold has been audited. A new utility may retain that exact baseline after review or deliberately move to another release, but a pin change requires testing and review against that exact Core version.
 
 ## Project-specific design
 
@@ -36,6 +36,8 @@ PROJECT CUSTOMIZATION REQUIRED.
 
 Document here:
 
+- the missing upstream feature/workflow and relevant upstream proposals, if any;
+- why existing Core RPCs are sufficient without modifying Core;
 - what the utility creates or changes;
 - every wallet type and key path;
 - every descriptor form;
@@ -44,7 +46,8 @@ Document here:
 - what the generator validates itself vs what Core validates;
 - backup/recovery assumptions;
 - online/offline boundary;
-- accepted architectural risks.
+- accepted architectural risks;
+- criteria for retiring the overlay when Core offers the workflow, including migration and backup compatibility.
 
 ## Maintenance rule
 

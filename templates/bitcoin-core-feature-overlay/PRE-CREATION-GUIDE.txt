@@ -18,7 +18,7 @@ At minimum, replace this template with a checklist covering:
 
 Keep software/environment instructions here rather than in generator.py.
 
-The Bitcoin Core Overlay Scaffold model is:
+The Bitcoin Core Feature Overlay model is:
 
 1. verify software;
 2. prepare the physical air gap;

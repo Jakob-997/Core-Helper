@@ -10,16 +10,16 @@ A collection of small, independent helper utilities for Bitcoin Core, optimized 
 
 Each utility is self-contained in its own folder with its own README and dependencies.
 
-## Bitcoin Core Overlay Scaffold
+## Bitcoin Core Feature Overlay
 
-`templates/bitcoin-core-overlay-scaffold/` is the recommended starting point for new security-sensitive Core Helper utilities.
+[Bitcoin Core Feature Overlay](https://github.com/Jakob-997/Bitcoin-Core-Feature-Overlay) is the canonical reusable pattern for implementing small Bitcoin Core features and workflows that are not yet merged upstream, without forking or modifying Bitcoin Core.
 
-The idea is to add capabilities **around Bitcoin Core, not inside a large custom wallet stack**:
+1. **Generator** — minimal feature logic using existing Core RPCs.
+2. **Launcher** — OS isolation, dependencies, verified Core version enforcement, runtime setup and cleanup.
+3. **Human/audit docs** — preparation, backup, recovery, testing, design assumptions and exact review records.
 
-1. **Generator** — the smallest possible Bitcoin/Core logic.
-2. **Launcher** — OS isolation, verified Core selection, runtime setup and cleanup.
-3. **Procedure/docs** — preparation, backup, recovery, verification, and testing.
+Bitcoin Core remains responsible for Bitcoin primitives. The overlay supplies the missing workflow and can be retired when Core provides equivalent functionality.
 
-The pattern is designed to keep custom code minimized, responsibilities separated, and exact review targets easy to audit. Bitcoin Core remains responsible for Bitcoin primitives wherever possible.
+Start new features from the [canonical upstream repository](https://github.com/Jakob-997/Bitcoin-Core-Feature-Overlay). [`templates/bitcoin-core-feature-overlay/`](templates/bitcoin-core-feature-overlay/) is a downstream snapshot for convenience, not the canonical source. Its `UPSTREAM.md` records provenance and the update procedure. Propose reusable scaffold changes upstream and review each downstream adoption explicitly.
 
-CoreVault was the first reference implementation this architecture was extracted from, but the reusable pattern is now called the **Bitcoin Core Overlay Scaffold**. CoreVault does not need to be rebased as the scaffold evolves.
+The architecture originated in CoreVault. Maintaining this pattern does not require modifying or rebasing CoreVault.

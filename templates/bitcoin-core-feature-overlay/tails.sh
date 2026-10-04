@@ -34,7 +34,7 @@ trap 'exit 1' HUP INT TERM
 
 archive="$here/../bitcoin-32.0rc2-x86_64-linux-gnu.tar.gz"
 
-# Bitcoin Core Overlay Scaffold baseline pin:
+# Bitcoin Core Feature Overlay baseline pin:
 # https://bitcoincore.org/bin/bitcoin-core-32.0/test.rc2/SHA256SUMS
 printf '0255103718033e6aee15fa944717fc277e047b845bff1e7408af0ea732d8d0c1  %s\n' "$archive" | sha256sum --check
 

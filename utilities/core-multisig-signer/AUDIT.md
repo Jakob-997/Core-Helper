@@ -70,7 +70,7 @@ Those errors were found during committed-source review and corrected before the 
 
 The first utility launcher expected `bitcoin-cli` on PATH.
 
-The Bitcoin Core Overlay Scaffold launcher now verifies the adjacent pinned Core archive, freshly extracts it, and passes the exact extracted binary paths to the generator.
+The Bitcoin Core Feature Overlay launcher now verifies the adjacent pinned Core archive, freshly extracts it, and passes the exact extracted binary paths to the generator.
 
 **Status:** fixed.
 
@@ -78,7 +78,7 @@ The Bitcoin Core Overlay Scaffold launcher now verifies the adjacent pinned Core
 
 The first version used `core_multisig_signer.py`, `GUIDE.md`, and `SECURITY.md`.
 
-The utility has now been rebased onto the Bitcoin Core Overlay Scaffold:
+The utility has now been rebased onto the Bitcoin Core Feature Overlay:
 
 - `generator.py`;
 - `tails.sh`;
