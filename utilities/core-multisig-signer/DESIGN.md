@@ -64,13 +64,24 @@ The completed quorum must be:
 wsh(sortedmulti(M,[origin]xpub/<0;1>/*,...))
 ```
 
+This Core signer itself remains BIP87 account 0. Other quorum members may use either:
+
+```text
+BIP87: m/87h/coin_typeh/accounth
+BIP48: m/48h/coin_typeh/accounth/2h
+```
+
+BIP48 script type `2h` is the native-P2WSH branch and therefore matches this utility's outer `wsh(...)` policy. BIP48 `1h` is nested P2SH-P2WSH and is not accepted here.
+
 The user pastes only the public quorum descriptor.
 
 Before requesting any private derived key, the generator requires:
 
 - `wsh(sortedmulti(...))`;
-- BIP87 account 0;
+- every signer origin is either BIP87 or BIP48 native-P2WSH;
+- this Core signer's own fingerprint, BIP87 account-0 origin, and xpub match exactly once;
 - correct coin type/network;
+- BIP48 script type is `2h`;
 - `/<0;1>/*`;
 - ranged and solvable descriptor;
 - no private input;
