@@ -2,7 +2,7 @@
 
 **Use Bitcoin Core as one signer in a BIP87 multisig quorum.**
 
-Built using the [Bitcoin Core Feature Overlay](https://github.com/Jakob-997/Bitcoin-Core-Feature-Overlay): minimal Core-facing logic, a separate Tails launcher, and separate human/audit documentation.
+Built using the [Bitcoin Core Feature Overlay](https://github.com/Jakob-997/Bitcoin-Core-Feature-Overlay) at revision `632648b88cdb867ab6372e2850e8a53d00f58552`: minimal Core-facing logic, a separate Tails launcher, and separate human/audit documentation.
 
 The utility creates one blank Core signer wallet, exports its public BIP87 account key as text + QR, then imports the completed multisig policy so the wallet can sign PSBTs as one member of the quorum.
 
@@ -32,6 +32,7 @@ your-folder/
     ├── PRE-CREATION-GUIDE.txt
     ├── POST-CREATION-GUIDE.txt
     ├── DESIGN.md
+    ├── AUDITING.md
     ├── AUDIT.md
     └── README.md
 ```
@@ -76,6 +77,7 @@ wsh(sortedmulti(M,[origin]xpub/<0;1>/*,...))
 ## Read more
 
 - [DESIGN.md](DESIGN.md) — architecture, trust model, descriptor construction, private-key boundary
+- [AUDITING.md](AUDITING.md) — review method inherited from Bitcoin Core Feature Overlay
 - [AUDIT.md](AUDIT.md) — exact reviewed executable revisions, findings, limitations
 - [PRE-CREATION-GUIDE.txt](PRE-CREATION-GUIDE.txt) — preparation checklist
 - [POST-CREATION-GUIDE.txt](POST-CREATION-GUIDE.txt) — backup, restore, address verification, PSBT test
