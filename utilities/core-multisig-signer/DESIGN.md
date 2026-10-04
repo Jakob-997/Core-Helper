@@ -2,6 +2,19 @@
 
 This utility follows the [Bitcoin Core Feature Overlay](https://github.com/Jakob-997/Bitcoin-Core-Feature-Overlay), a three-layer pattern originally extracted from CoreVault.
 
+## Upstream gap
+
+This overlay bridges a workflow that Bitcoin Core does not yet expose as a finished native multisig-signer setup flow.
+
+As of October 4, 2026:
+
+- bitcoin/bitcoin#36325, **Contrib: add multisig wizard**, is open and unmerged.
+- bitcoin/bitcoin#35377, **Allow importing of descriptors without private keys when the wallet has the private keys**, is open and unmerged.
+
+The first is directly related to the missing multisig setup workflow. The second is why this utility currently substitutes only the local signer's BIP87 account xpub with its xprv before importing the signing descriptor.
+
+If Core ships an equivalent native workflow, this overlay should be reevaluated for retirement rather than maintained indefinitely. Existing signer backups must remain usable, and migration should be verified with address agreement plus a disposable PSBT signing test before changing an established wallet procedure.
+
 ## Trust model
 
 The utility is designed so that project-specific executable logic remains small and Bitcoin-specific behavior is delegated to a pinned Bitcoin Core release.
@@ -116,6 +129,16 @@ The launcher refuses to reuse an existing `signer-wallets/` directory.
 - Software networking shutdown is defense in depth, not a replacement for physical isolation.
 - A compromised Tails image, Core binary, Python runtime, host firmware, or hardware can still compromise the signer.
 - The utility does not replace an end-to-end disposable-funds test.
+
+## Overlay provenance
+
+Canonical Bitcoin Core Feature Overlay revision used for this rebase:
+
+```text
+632648b88cdb867ab6372e2850e8a53d00f58552
+```
+
+Project-specific differences from the scaffold are intentional: the launcher requires Tails' `qr` command and passes its absolute path to the generator so only public signer information is rendered as a terminal QR.
 
 ## Maintenance rule
 
