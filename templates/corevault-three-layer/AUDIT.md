@@ -1,0 +1,39 @@
+# Audit Record
+
+PROJECT CUSTOMIZATION REQUIRED.
+
+Do not claim this template's review applies automatically to a utility copied from it.
+
+For each real utility, record:
+
+- exact project commit reviewed;
+- exact generator blob/revision reviewed;
+- exact launcher blob/revision reviewed;
+- exact Bitcoin Core release and commit reviewed;
+- review date;
+- scope;
+- findings and fixes;
+- unresolved limitations;
+- end-to-end test environment and results;
+- upstream Bitcoin Core/BIP references relied upon.
+
+## Baseline inherited from the CoreVault architecture
+
+The template preserves these design principles:
+
+- small generator;
+- no custom cryptography unless explicitly justified and reviewed;
+- sensitive RPC arguments over stdin rather than process argv;
+- pinned Core archive verification;
+- fresh extraction;
+- absolute paths to verified Core binaries;
+- NetworkManager shutdown plus Core `-networkactive=0 -listen=0`;
+- temporary runtime state under `/dev/shm`;
+- separate human backup/restore/test procedure;
+- exact-version review.
+
+These are architectural starting points, not an audit of a new utility.
+
+## Final review rule
+
+A copied utility is **unaudited until its project-specific generator, launcher changes, guides, and exact Core dependency are reviewed together**.
