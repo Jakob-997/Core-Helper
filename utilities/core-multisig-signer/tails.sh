@@ -4,7 +4,14 @@ set -e
 here=$(CDPATH='' cd -- "$(dirname -- "$0")" && pwd)
 umask 077
 
-echo "Please read GUIDE.md in this folder before creating a signer, if you have not already done so."
+zenity --text-info \
+    --title="Pre-Creation Guide" \
+    --filename="$here/PRE-CREATION-GUIDE.txt" \
+    --width=800 \
+    --height=700 \
+    >/dev/null 2>&1 &
+
+echo "Please read PRE-CREATION-GUIDE.txt before creating a signer, if you have not already done so."
 
 if ! command -v python3 >/dev/null 2>&1; then
     echo "Error: python3 was not found." >&2
@@ -74,18 +81,24 @@ trap cleanup EXIT
 
 stop_core
 
-# Refuse to reuse an existing output directory.
+# Refuse to reuse an existing signer output.
 mkdir "$wallet_dir"
 
 "$bitcoind_bin" -daemonwait -networkactive=0 -listen=0 -walletdir="$wallet_dir"
 printf '\n'
 
-python3 "$here/core_multisig_signer.py" "$bitcoin_cli" "$qr_bin"
+python3 "$here/generator.py" "$bitcoin_cli" "$qr_bin"
 
 cleanup
 trap - EXIT HUP INT TERM
 export HOME="$original_home"
 
-printf '\nSigner creation complete.\n'
-printf 'Private Bitcoin Core wallet data is in:\n%s\n' "$wallet_dir"
-printf 'Read GUIDE.md before funding the quorum.\n'
+setsid -f zenity --text-info \
+    --title="Post-Creation Guide" \
+    --filename="$here/POST-CREATION-GUIDE.txt" \
+    --width=800 \
+    --height=700 \
+    </dev/null >/dev/null 2>&1
+
+echo "Please read POST-CREATION-GUIDE.txt."
+printf '\nSigner creation complete. You may now close this window.\n'
