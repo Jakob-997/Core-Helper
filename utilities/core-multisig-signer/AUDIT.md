@@ -1,7 +1,7 @@
 # Audit Record
 
 **Bitcoin Core Feature Overlay revision:** `632648b88cdb867ab6372e2850e8a53d00f58552`  
-**Generator blob:** `7bfdf5b73dbecb32dd40debc20d32b4a5c6a3d3e`  
+**Generator blob:** `7bcca4968217d8f338ce563c7156329f6d0d5b8e`  
 **Tails launcher blob:** `10a80630066599b429a3bafa2914bad2d6cb2d32`  
 **Bitcoin Core version reviewed:** `v32.0rc2`  
 **Bitcoin Core commit:** `bc795e60dbb2c6e9c9556949731912429290626a`  
@@ -59,6 +59,20 @@ The intended construction is:
 
 ## Issues caught during development
 
+### BIP87-only quorum validation
+
+The first signer parser required every quorum key to use a BIP87 account origin. That was unnecessarily restrictive for hardware wallets that commonly use BIP48 for multisig.
+
+The parser now accepts either:
+
+- BIP87 account origins: `m/87h/coin_typeh/accounth`
+- BIP48 native-P2WSH origins: `m/48h/coin_typeh/accounth/2h`
+
+The local Core signer still must match its own BIP87 account-0 fingerprint, origin, and xpub exactly once. BIP48 `1h` remains rejected because it is the nested P2SH-P2WSH branch and does not match this utility's native `wsh(...)` policy.
+
+**Status:** fixed.
+
+
 ### RPC stdin and regex escaping
 
 An early committed draft contained incorrect Python escaping in the descriptor regexes and RPC stdin newline construction.
@@ -96,7 +110,8 @@ The wallet construction itself was not changed by that structural refactor.
 During development:
 
 - Python syntax checking was performed on the generator.
-- A mocked `bitcoin-cli` end-to-end flow exercised wallet creation, BIP87 public derivation, public descriptor validation, private account derivation, signer substitution, import, and post-import `gethdkeys` verification.
+- A mocked `bitcoin-cli` end-to-end flow previously exercised wallet creation, BIP87 public derivation, public descriptor validation, private account derivation, signer substitution, import, and post-import `gethdkeys` verification.
+- The later BIP48 cosigner-parser change has been source-reviewed but has not yet been rerun through that mocked flow or a real Core daemon in this session.
 - The launcher and generator were reviewed against Bitcoin Core v32.0rc2 source behavior for `addhdkey`, `derivehdkey`, and `gethdkeys`.
 
 ## Still required before meaningful funds
