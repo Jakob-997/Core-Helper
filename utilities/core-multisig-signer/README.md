@@ -42,7 +42,8 @@ Use **Bitcoin Core v32.0rc2 exactly**. Another release must be tested and review
 ## Design at a glance
 
 - Bitcoin Core generates, derives, validates, and stores the keys.
-- The signer uses BIP87 account 0.
+- This Core signer uses BIP87 account 0.
+- Other quorum members may use BIP87 or BIP48 native-P2WSH (`m/48h/coin_typeh/accounth/2h`) account keys.
 - The quorum is native SegWit `wsh(sortedmulti())`.
 - Only this signer's account key becomes private inside its imported multisig descriptor.
 - The public signer key is displayed with Tails' installed `qr` command.
@@ -73,6 +74,15 @@ The completed descriptor must have the form:
 ```text
 wsh(sortedmulti(M,[origin]xpub/<0;1>/*,...))
 ```
+
+Accepted signer origins are:
+
+```text
+BIP87: [fingerprint/87h/coin_typeh/accounth]xpub/<0;1>/*
+BIP48: [fingerprint/48h/coin_typeh/accounth/2h]xpub/<0;1>/*
+```
+
+For BIP48, only script type `2h` is accepted because this utility creates native P2WSH `wsh(...)` multisig. The nested-SegWit BIP48 `1h` branch corresponds to `sh(wsh(...))` and is intentionally rejected.
 
 ## Read more
 
