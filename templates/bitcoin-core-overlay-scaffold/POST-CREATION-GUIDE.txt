@@ -1,0 +1,20 @@
+POST-CREATION GUIDE
+
+PROJECT CUSTOMIZATION REQUIRED.
+
+This file owns the human procedure AFTER the generator has completed.
+
+Replace this template with the exact procedure for:
+
+1. locating every created output;
+2. backing up each private and public component;
+3. verifying each backup can be read/restored;
+4. independently verifying expected addresses/descriptors/configuration;
+5. performing a disposable end-to-end test;
+6. testing every signer/recovery path, when applicable;
+7. moving only public/watch-only material to online systems;
+8. shutting down the offline system;
+9. transporting and storing backups;
+10. documenting what possession of each backup reveals or controls.
+
+Do not move these steps into generator.py merely for convenience. The human verification procedure is a separate security layer.
