@@ -2,7 +2,7 @@
 
 This directory is a downstream convenience snapshot of the canonical [Bitcoin Core Feature Overlay](https://github.com/Jakob-997/Bitcoin-Core-Feature-Overlay).
 
-- Upstream revision: [`2ee979472707e1856ee254b7d827a89297ad956a`](https://github.com/Jakob-997/Bitcoin-Core-Feature-Overlay/tree/2ee979472707e1856ee254b7d827a89297ad956a)
+- Upstream revision: [`632648b88cdb867ab6372e2850e8a53d00f58552`](https://github.com/Jakob-997/Bitcoin-Core-Feature-Overlay/tree/632648b88cdb867ab6372e2850e8a53d00f58552)
 - Imported files: `README.md`, `DESIGN.md`, `AUDITING.md`, `AUDIT.md`, `generator.py`, `tails.sh`, `PRE-CREATION-GUIDE.txt`, `POST-CREATION-GUIDE.txt`.
 - Local additions: this provenance file only.
 
