@@ -2,7 +2,7 @@
 
 **Bitcoin Core Feature Overlay revision:** `632648b88cdb867ab6372e2850e8a53d00f58552`  
 **Generator blob:** `7bfdf5b73dbecb32dd40debc20d32b4a5c6a3d3e`  
-**Tails launcher blob:** `87a025348e4efa9b3a0fa127df853aaa5c168361`  
+**Tails launcher blob:** `10a80630066599b429a3bafa2914bad2d6cb2d32`  
 **Bitcoin Core version reviewed:** `v32.0rc2`  
 **Bitcoin Core commit:** `bc795e60dbb2c6e9c9556949731912429290626a`  
 **Review date:** 2026-10-04
