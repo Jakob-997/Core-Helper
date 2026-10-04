@@ -73,11 +73,25 @@ The generator will:
 3. derive the BIP87 account at m/87h/0h/0h on mainnet;
 4. display the public [fingerprint/path]xpub expression and a QR;
 5. wait for you to paste the completed public wsh(sortedmulti(...)) quorum descriptor;
-6. verify that this signer appears exactly once;
+6. accept BIP87 cosigners and BIP48 native-P2WSH cosigners, while verifying that this Core signer appears exactly once with its own BIP87 identity;
 7. derive this signer's private BIP87 account key internally;
 8. import the complete multisig signing descriptor;
 9. verify Core reports exactly one private key in the active multisig policy.
 
 The public QR does not contain private key material.
+
+OTHER SIGNERS
+
+This Core signer uses BIP87 account 0. Other quorum members do not have to use BIP87.
+
+For native P2WSH multisig, accepted cosigner account origins are:
+
+BIP87:
+    m/87h/coin_typeh/accounth
+
+BIP48 native P2WSH:
+    m/48h/coin_typeh/accounth/2h
+
+BIP48 /1h is nested SegWit (P2SH-P2WSH) and is not valid for this native wsh(...) quorum.
 
 When ready, close this guide and continue in the Console.
