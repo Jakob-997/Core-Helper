@@ -1,74 +1,81 @@
 # Core Multisig Signer
 
-Use a Bitcoin Core wallet as one signer in a BIP87 multisig quorum.
+**Use Bitcoin Core as one signer in a BIP87 multisig quorum.**
 
-The utility creates a blank Core wallet, lets Core generate the HD root, exports the BIP87 account xpub as text and a terminal QR, then imports the completed public multisig descriptor with only this signer's matching account key made private internally.
+The utility creates one blank Core signer wallet, exports its public BIP87 account key as text + QR, then imports the completed multisig policy so the wallet can sign PSBTs as one member of the quorum.
 
 ## Quick start
 
-> **For a real signer:** use a dedicated computer, preferably a laptop, that is physically air-gapped with its network hardware removed and never reconnected afterward. The software networking shutdown is defense in depth.
+> **For a real signer:** use dedicated hardware that is physically air-gapped where practical. The launcher's software networking shutdown is defense in depth.
 
 ```text
 1. Verify Tails and Bitcoin Core v32.0rc2.
-2. Copy the core-multisig-signer folder out of this repository.
-3. Put that folder next to:
+2. Put the core-multisig-signer folder next to:
    bitcoin-32.0rc2-x86_64-linux-gnu.tar.gz
-4. Read GUIDE.md.
-5. In Tails, make tails.sh executable and choose "Run as a Program".
-6. Add the displayed BIP87 key to your multisig quorum.
-7. Paste the completed public quorum descriptor back into the signer.
-8. Back up signer-wallets and test the quorum with disposable funds.
+3. Read PRE-CREATION-GUIDE.txt.
+4. In Tails, make tails.sh executable and choose "Run as a Program".
+5. Add the displayed BIP87 key to your multisig quorum.
+6. Paste the completed public quorum descriptor into the signer.
+7. Follow POST-CREATION-GUIDE.txt to back up, restore, verify, and test it.
 ```
 
-The expected layout is:
+Expected layout:
 
 ```text
 your-folder/
 ├── bitcoin-32.0rc2-x86_64-linux-gnu.tar.gz
 └── core-multisig-signer/
     ├── tails.sh
-    ├── core_multisig_signer.py
-    ├── GUIDE.md
-    ├── README.md
-    └── SECURITY.md
+    ├── generator.py
+    ├── PRE-CREATION-GUIDE.txt
+    ├── POST-CREATION-GUIDE.txt
+    ├── DESIGN.md
+    ├── AUDIT.md
+    └── README.md
 ```
 
-Use **Bitcoin Core v32.0rc2 exactly**. The launcher pins and verifies that archive before extracting or running it.
+Use **Bitcoin Core v32.0rc2 exactly**. Another release must be tested and reviewed before changing the pin.
+
+## Design at a glance
+
+- Bitcoin Core generates, derives, validates, and stores the keys.
+- The signer uses BIP87 account 0.
+- The quorum is native SegWit `wsh(sortedmulti())`.
+- Only this signer's account key becomes private inside its imported multisig descriptor.
+- The public signer key is displayed with Tails' installed `qr` command.
+- The helper contains no custom cryptography.
 
 ## Three layers
 
 | Layer | File | Responsibility |
 | --- | --- | --- |
-| Generator | `core_multisig_signer.py` | Bitcoin Core RPC flow, descriptor validation, private-key substitution, post-import verification |
-| Tails launcher | `tails.sh` | Disable networking, verify/extract the pinned Core archive, isolate runtime state, start/stop Core |
-| Human procedure | `GUIDE.md` / `SECURITY.md` | Quorum exchange, backup, test spend, threat model, and limitations |
+| Generator | [generator.py](generator.py) | Core RPC flow and signer construction |
+| Tails launcher | [tails.sh](tails.sh) | Network shutdown, pinned Core verification/extraction, isolated runtime |
+| Human procedure | [PRE-CREATION-GUIDE.txt](PRE-CREATION-GUIDE.txt) / [POST-CREATION-GUIDE.txt](POST-CREATION-GUIDE.txt) | Preparation, backup, restore, verification, test spend |
 
-The generator contains no custom cryptography. Bitcoin Core generates and derives keys, parses descriptors, computes descriptor checksums, stores the wallet, and performs signing.
+The generator is the primary executable review target. Tails/environment changes belong in the launcher; operating procedure changes belong in the guides.
 
-## What it outputs
+## Signer key
 
-The signer key shown to the coordinator has the form:
+The public key shown to the coordinator is:
 
 ```text
 [fingerprint/87h/0h/0h]xpub...
 ```
 
-On supported test networks Core uses coin type 1:
+Supported test networks use coin type 1.
+
+The completed descriptor must have the form:
 
 ```text
-[fingerprint/87h/1h/0h]tpub...
+wsh(sortedmulti(M,[origin]xpub/<0;1>/*,...))
 ```
 
-The completed quorum descriptor must be native SegWit BIP87 `wsh(sortedmulti(...))` using `/<0;1>/*` receive/change derivation.
+## Read more
 
-The private Core wallet is created under:
+- [DESIGN.md](DESIGN.md) — architecture, trust model, descriptor construction, private-key boundary
+- [AUDIT.md](AUDIT.md) — exact reviewed executable revisions, findings, limitations
+- [PRE-CREATION-GUIDE.txt](PRE-CREATION-GUIDE.txt) — preparation checklist
+- [POST-CREATION-GUIDE.txt](POST-CREATION-GUIDE.txt) — backup, restore, address verification, PSBT test
 
-```text
-core-multisig-signer/signer-wallets/
-```
-
-The launcher aborts if that directory already exists rather than reusing an old signer.
-
-## Status
-
-Security-oriented testing and review are still required before using this with meaningful funds. See [SECURITY.md](SECURITY.md).
+**This utility has received AI-assisted review but no independent professional security audit.**
