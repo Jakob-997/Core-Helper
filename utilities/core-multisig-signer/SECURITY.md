@@ -49,9 +49,9 @@ After substituting this signer's xprv, Bitcoin Core must report that the private
 
 After import, `gethdkeys active_only=true` must report exactly one private HD key in the active multisig policy and it must correspond to this signer's BIP87 account xpub.
 
-## Air gap
+## Tails launcher and air gap
 
-`run.sh` disables NetworkManager networking with:
+`tails.sh` disables NetworkManager networking with:
 
 ```text
 nmcli networking off
@@ -63,6 +63,16 @@ This is defense in depth, not a substitute for physically removing/disabling net
 
 The launcher does not attempt to install packages or fetch anything from the Internet.
 
+It expects the utility folder to sit directly beside `bitcoin-32.0rc2-x86_64-linux-gnu.tar.gz`. Before execution it checks that archive against the pinned official SHA-256:
+
+```text
+0255103718033e6aee15fa944717fc277e047b845bff1e7408af0ea732d8d0c1
+```
+
+It then extracts Core into a fresh directory and invokes only that extraction's `bitcoin-cli` and `bitcoind` by absolute path. Core is started with `-networkactive=0 -listen=0`, while its transient HOME/runtime state lives under `/dev/shm`. The persistent signer wallet is written only to the new `signer-wallets/` directory.
+
+The launcher refuses to reuse an existing `signer-wallets/` directory.
+
 ## QR dependency
 
 The launcher uses the operating system's installed `qr` executable. On Tails, the package is `python3-qrcode` and the command-line name is `qr`.
@@ -71,7 +81,7 @@ Only public signer information is sent to the QR encoder.
 
 ## Limitations
 
-- Bitcoin Core 32.x is required because this workflow depends on `addhdkey`, `derivehdkey`, and `gethdkeys`.
+- The Tails launcher is pinned to Bitcoin Core v32.0rc2. Another Core build must be reviewed and tested before changing the pin.
 - The utility intentionally supports only BIP87 account 0 and native SegWit `wsh(sortedmulti())`.
 - Wallet encryption is not implemented in this first version; use the signer only in an environment whose wallet-storage assumptions you understand.
 - The helper does not create the coordinator/watch-only wallet.
@@ -81,4 +91,4 @@ Only public signer information is sent to the QR encoder.
 
 ## Review target
 
-The main security-critical file is `core_multisig_signer.py`. The launcher should be reviewed separately for OS/environment behavior, and this document plus `GUIDE.md` should be reviewed for procedural assumptions.
+The main security-critical file is `core_multisig_signer.py`. `tails.sh` should be reviewed separately for archive verification, OS/environment behavior, and Core startup/shutdown. This document plus `GUIDE.md` should be reviewed for procedural assumptions.
