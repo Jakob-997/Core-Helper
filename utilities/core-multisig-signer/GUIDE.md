@@ -4,27 +4,53 @@ This utility turns one Bitcoin Core wallet into one signer in a BIP87 multisig q
 
 ## Before starting
 
-Use a clean, verified operating system and a clean, verified Bitcoin Core 32.x installation. For an offline signer, physically disconnect networking where practical. The launcher also disables NetworkManager networking as defense in depth.
+Use a clean, verified Tails installation and independently verify the Bitcoin Core v32.0rc2 archive you intend to use.
 
-Start Bitcoin Core locally with RPC available before running the utility. The helper talks only to the local `bitcoin-cli`; it does not make network requests.
+For a real signer, use dedicated physically air-gapped hardware where practical. The launcher disables NetworkManager networking as defense in depth, but software isolation is not a substitute for removing network capability from a high-value signing device.
 
 Backups created by this process contain private signing material. Treat them like a hardware-wallet seed backup.
 
+## Folder layout
+
+Copy the `core-multisig-signer` folder out of Core-Helper and place it directly beside the Bitcoin Core archive:
+
+```text
+your-folder/
+├── bitcoin-32.0rc2-x86_64-linux-gnu.tar.gz
+└── core-multisig-signer/
+    ├── tails.sh
+    ├── core_multisig_signer.py
+    ├── GUIDE.md
+    ├── README.md
+    └── SECURITY.md
+```
+
+Do not extract Bitcoin Core yourself for this workflow. `tails.sh` verifies the archive and extracts a fresh copy.
+
 ## Create the signer
 
-Run:
+In Tails, make `tails.sh` executable and run it as a program. From a terminal, the equivalent is:
 
 ```bash
-chmod +x run.sh
-./run.sh
+chmod +x tails.sh
+./tails.sh
 ```
 
 The launcher:
 
-1. checks for Python 3, `bitcoin-cli`, `qr`, and `nmcli`
+1. checks for Python 3, Tails' `qr` command, and NetworkManager
 2. disables NetworkManager networking
 3. verifies NetworkManager reports networking disabled
-4. passes absolute paths for `bitcoin-cli` and `qr` to the generator
+4. checks `bitcoin-32.0rc2-x86_64-linux-gnu.tar.gz` against the pinned official SHA-256
+5. extracts that verified archive into a fresh directory
+6. uses only the extracted `bitcoin-cli` and `bitcoind` by absolute path
+7. creates temporary Core runtime state under `/dev/shm`
+8. creates a new persistent `signer-wallets/` output directory
+9. starts Core with `-networkactive=0 -listen=0`
+10. runs the minimal Python generator
+11. stops Core and removes the temporary runtime state
+
+The launcher refuses to continue if `signer-wallets/` already exists.
 
 The generator then:
 
@@ -33,7 +59,7 @@ The generator then:
 3. creates a blank descriptor wallet with private keys enabled
 4. calls `addhdkey`, causing Bitcoin Core to generate and store a new HD root
 5. derives the BIP87 account at `m/87h/0h/0h` on mainnet or `m/87h/1h/0h` on test networks
-6. prints the complete public key expression and displays it with the installed `qr` command
+6. prints the complete public key expression and displays it with Tails' installed `qr` command
 
 Example:
 
@@ -80,21 +106,26 @@ Only after the public descriptor passes those checks does the helper ask Bitcoin
 
 The helper replaces exactly this signer's matching xpub with that xprv **in memory**, asks Bitcoin Core to parse the result, and verifies Core reports the same public descriptor before importing it.
 
-The xprv and private descriptor are never intentionally printed, written to a file, copied to the clipboard, encoded as a QR, or passed as command-line arguments.
+The xprv and private descriptor are never intentionally printed, written to a project file, copied to the clipboard, encoded as a QR, or passed as command-line arguments.
 
 ## Back up before funding
 
-After the utility reports `Signer ready`:
+After the utility reports `Signer creation complete`, the private Core wallet data is under:
 
-1. stop creating or modifying the wallet
-2. make a Bitcoin Core wallet backup using your normal verified backup procedure
-3. store that backup as private signing material
-4. verify all quorum participants and the coordinator derive the same first receive address
-5. fund only with disposable test funds
-6. create a PSBT on the coordinator
-7. load the PSBT into this Core signer
-8. sign it in Bitcoin Core
-9. combine the required signatures and broadcast
-10. only then consider using meaningful funds
+```text
+core-multisig-signer/signer-wallets/
+```
+
+Before meaningful funding:
+
+1. make a verified backup of the signer wallet
+2. store that backup as private signing material
+3. verify all quorum participants and the coordinator derive the same first receive address
+4. fund only with disposable test funds
+5. create a PSBT on the coordinator
+6. load the PSBT into this Core signer
+7. sign it in Bitcoin Core
+8. combine the required signatures and broadcast
+9. only then consider using meaningful funds
 
 The utility does not automate the test spend. That is deliberate: the final human verification should happen through the normal Bitcoin Core PSBT workflow.
