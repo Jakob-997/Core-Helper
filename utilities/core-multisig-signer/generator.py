@@ -7,13 +7,21 @@ import sys
 TEST_CHAINS = {"test", "testnet4", "signet", "regtest"}
 ACCOUNT = 0
 PURPOSE = 87
+MAX_BIP32_INDEX = 2**31 - 1
 
+HARDENED = r"(?:h|H|')"
 KEY_RE = re.compile(
-    r"^\[([0-9a-fA-F]{8})/87(?:h|H|')/([01])(?:h|H|')/0(?:h|H|')\]"
+    r"^\[([0-9a-fA-F]{8})/([^\]]+)\]"
     r"([1-9A-HJ-NP-Za-km-z]+)/<0;1>/\*$"
 )
-ORIGIN_RE = re.compile(
-    r"^\[([0-9a-fA-F]{8})/87(?:h|H|')/([01])(?:h|H|')/0(?:h|H|')\]$"
+OWN_ORIGIN_RE = re.compile(
+    rf"^\[([0-9a-fA-F]{{8}})/87{HARDENED}/([01]){HARDENED}/0{HARDENED}\]$"
+)
+BIP87_PATH_RE = re.compile(
+    rf"^87{HARDENED}/([01]){HARDENED}/([0-9]+){HARDENED}$"
+)
+BIP48_PATH_RE = re.compile(
+    rf"^48{HARDENED}/([01]){HARDENED}/([0-9]+){HARDENED}/2{HARDENED}$"
 )
 
 
@@ -126,7 +134,7 @@ def add_root_and_derive_public(bitcoin_cli, wallet, coin_type):
     if not isinstance(origin, str) or not isinstance(account_xpub, str):
         fail("derivehdkey did not return the expected public key data.")
 
-    match = ORIGIN_RE.fullmatch(origin)
+    match = OWN_ORIGIN_RE.fullmatch(origin)
     if not match or int(match.group(2)) != coin_type:
         fail("Bitcoin Core returned an unexpected BIP87 key origin.")
 
@@ -149,6 +157,39 @@ def descriptor_body(raw):
     if raw.count("#") > 1:
         raise DescriptorError("Descriptor contains more than one checksum separator.")
     return raw.split("#", 1)[0]
+
+
+def parse_signer_origin(path, coin_type):
+    match = BIP87_PATH_RE.fullmatch(path)
+    if match:
+        key_coin, account_text = match.groups()
+        account = int(account_text)
+        if int(key_coin) != coin_type:
+            raise DescriptorError(
+                "Descriptor contains a BIP87 signer from the wrong coin type."
+            )
+        if account > MAX_BIP32_INDEX:
+            raise DescriptorError("BIP87 account index is outside the BIP32 range.")
+        return (87, coin_type, account, None)
+
+    match = BIP48_PATH_RE.fullmatch(path)
+    if match:
+        key_coin, account_text = match.groups()
+        account = int(account_text)
+        if int(key_coin) != coin_type:
+            raise DescriptorError(
+                "Descriptor contains a BIP48 signer from the wrong coin type."
+            )
+        if account > MAX_BIP32_INDEX:
+            raise DescriptorError("BIP48 account index is outside the BIP32 range.")
+        return (48, coin_type, account, 2)
+
+    raise DescriptorError(
+        "Every signer must use either a BIP87 account origin "
+        "[fingerprint/87h/coin_typeh/accounth]xpub/<0;1>/* "
+        "or a BIP48 native-P2WSH origin "
+        "[fingerprint/48h/coin_typeh/accounth/2h]xpub/<0;1>/*."
+    )
 
 
 def parse_policy(body, coin_type, own_origin, own_xpub):
@@ -176,10 +217,11 @@ def parse_policy(body, coin_type, own_origin, own_xpub):
     if len(set(keys)) != len(keys):
         raise DescriptorError("Descriptor contains a duplicate signer key.")
 
-    own_origin_match = ORIGIN_RE.fullmatch(own_origin)
+    own_origin_match = OWN_ORIGIN_RE.fullmatch(own_origin)
     if not own_origin_match:
         fail("Internal error: unexpected signer origin.")
     own_fingerprint = own_origin_match.group(1).lower()
+    own_identity = (87, coin_type, ACCOUNT, None)
 
     expected_prefix = "xpub" if coin_type == 0 else "tpub"
     parsed = []
@@ -187,36 +229,39 @@ def parse_policy(body, coin_type, own_origin, own_xpub):
         match = KEY_RE.fullmatch(key)
         if not match:
             raise DescriptorError(
-                "Every signer must use [fingerprint/87h/coin_typeh/0h]"
-                "xpub/<0;1>/*."
+                "Every signer key must include a fingerprint, supported multisig "
+                "account origin, xpub/tpub, and /<0;1>/*."
             )
-        fingerprint, key_coin, xpub = match.groups()
-        if int(key_coin) != coin_type:
-            raise DescriptorError(
-                "Descriptor contains a signer from the wrong BIP87 coin type."
-            )
+
+        fingerprint, origin_path, xpub = match.groups()
+        identity = parse_signer_origin(origin_path, coin_type)
+
         if not xpub.startswith(expected_prefix):
             raise DescriptorError(
                 "Descriptor contains an extended public key for the wrong network."
             )
-        parsed.append((fingerprint.lower(), xpub, key))
 
-    if len({xpub for _, xpub, _ in parsed}) != len(parsed):
+        parsed.append((fingerprint.lower(), identity, xpub, key))
+
+    if len({xpub for _, _, xpub, _ in parsed}) != len(parsed):
         raise DescriptorError("Descriptor contains a duplicate account xpub.")
 
     matches = [
         key
-        for fingerprint, xpub, key in parsed
-        if fingerprint == own_fingerprint and xpub == own_xpub
+        for fingerprint, identity, xpub, key in parsed
+        if (
+            fingerprint == own_fingerprint
+            and identity == own_identity
+            and xpub == own_xpub
+        )
     ]
     if len(matches) != 1:
         raise DescriptorError(
-            "The descriptor must contain this signer exactly once "
-            "(matching fingerprint and BIP87 account xpub)."
+            "The descriptor must contain this Core signer exactly once "
+            "(matching fingerprint, BIP87 account origin, and account xpub)."
         )
 
     return threshold, keys, matches[0]
-
 
 def validate_public_descriptor(bitcoin_cli, raw, coin_type, own_origin, own_xpub):
     info = rpc(bitcoin_cli, "getdescriptorinfo", raw)
