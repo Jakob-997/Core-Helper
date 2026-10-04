@@ -34,7 +34,7 @@ The intended construction is:
 2. call `addhdkey` so Core generates/stores a fresh HD root;
 3. call `derivehdkey` at BIP87 account 0;
 4. export only the public origin+xpub expression;
-5. accept only a public `wsh(sortedmulti(...))` BIP87 quorum descriptor;
+5. accept only a public `wsh(sortedmulti(...))` quorum descriptor whose signer origins are BIP87 or BIP48 native-P2WSH;
 6. require exactly one match to this signer;
 7. derive this signer's account xprv internally;
 8. replace only the matching account xpub in memory;
@@ -50,7 +50,7 @@ The intended construction is:
 - The xprv/private descriptor are not intentionally printed, persisted by the helper, copied to clipboard, or QR encoded.
 - RPC errors involving private descriptor material suppress potentially sensitive response text.
 - The QR receives public signer information only.
-- Descriptor input fails closed on wrong structure, network, BIP87 path, duplicate keys, private input, or signer mismatch.
+- Descriptor input fails closed on wrong structure, network, unsupported signer origin, wrong BIP48 script type, duplicate keys, private input, or local-signer mismatch.
 - The launcher disables NetworkManager networking and requires the disabled state.
 - Core is additionally started with `-networkactive=0 -listen=0`.
 - The launcher verifies the pinned v32.0rc2 archive before extracting and uses only that fresh extraction by absolute path.
