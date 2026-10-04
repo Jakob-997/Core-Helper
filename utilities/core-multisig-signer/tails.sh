@@ -4,6 +4,9 @@ set -e
 here=$(CDPATH='' cd -- "$(dirname -- "$0")" && pwd)
 umask 077
 
+project_slug="core-multisig-signer"
+output_dir_name="signer-wallets"
+
 zenity --text-info \
     --title="Pre-Creation Guide" \
     --filename="$here/PRE-CREATION-GUIDE.txt" \
@@ -34,17 +37,17 @@ if [ "$(LC_ALL=C nmcli networking)" != "disabled" ]; then
     exit 1
 fi
 
-state=$(mktemp -d /dev/shm/core-multisig-signer.XXXXXX)
+state=$(mktemp -d "/dev/shm/$project_slug.XXXXXX")
 trap 'rm -rf "$state"' EXIT
 trap 'exit 1' HUP INT TERM
 
 archive="$here/../bitcoin-32.0rc2-x86_64-linux-gnu.tar.gz"
 
-# Pin the official Linux x86_64 release before extracting it.
+# Bitcoin Core Feature Overlay baseline, reviewed for this utility:
 # https://bitcoincore.org/bin/bitcoin-core-32.0/test.rc2/SHA256SUMS
 printf '0255103718033e6aee15fa944717fc277e047b845bff1e7408af0ea732d8d0c1  %s\n' "$archive" | sha256sum --check
 
-core_dir=$(mktemp -d "$here/../bitcoin-32.0rc2-core-signer.XXXXXX")
+core_dir=$(mktemp -d "$here/../bitcoin-32.0rc2-$project_slug.XXXXXX")
 tar -xzf "$archive" -C "$core_dir" --strip-components=1 --no-same-owner
 
 bitcoin_cli="$core_dir/bin/bitcoin-cli"
@@ -56,9 +59,9 @@ if [ ! -x "$bitcoin_cli" ] || [ ! -x "$bitcoind_bin" ]; then
     exit 1
 fi
 
-wallet_dir="$here/signer-wallets"
-original_home=$HOME
+output_dir="$here/$output_dir_name"
 
+original_home=$HOME
 export HOME="$state"
 cd "$here"
 
@@ -81,10 +84,10 @@ trap cleanup EXIT
 
 stop_core
 
-# Refuse to reuse an existing signer output.
-mkdir "$wallet_dir"
+# Fail closed rather than reuse an old signer output.
+mkdir "$output_dir"
 
-"$bitcoind_bin" -daemonwait -networkactive=0 -listen=0 -walletdir="$wallet_dir"
+"$bitcoind_bin" -daemonwait -networkactive=0 -listen=0 -walletdir="$output_dir"
 printf '\n'
 
 python3 "$here/generator.py" "$bitcoin_cli" "$qr_bin"
