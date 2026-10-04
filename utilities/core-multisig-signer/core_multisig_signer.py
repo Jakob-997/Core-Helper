@@ -368,7 +368,7 @@ def verify_signer(bitcoin_cli, wallet, account_xpub):
 
 def main():
     if len(sys.argv) != 3:
-        fail("Run this utility through run.sh.")
+        fail("Run this utility through tails.sh.")
 
     bitcoin_cli = sys.argv[1]
     qr_bin = sys.argv[2]
