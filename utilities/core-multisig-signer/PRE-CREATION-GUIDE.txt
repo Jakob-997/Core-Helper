@@ -38,6 +38,7 @@ your-folder/
         PRE-CREATION-GUIDE.txt
         POST-CREATION-GUIDE.txt
         DESIGN.md
+        AUDITING.md
         AUDIT.md
         README.md
 
