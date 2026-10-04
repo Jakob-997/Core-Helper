@@ -1,0 +1,27 @@
+PRE-CREATION GUIDE
+
+PROJECT CUSTOMIZATION REQUIRED.
+
+This file owns the human procedure that must be true BEFORE the generator runs.
+
+At minimum, replace this template with a checklist covering:
+
+[ ] Verified Tails ISO.
+[ ] Verified exact Bitcoin Core release and trusted signing-key fingerprints.
+[ ] Project folder placed next to the unextracted pinned Core tarball.
+[ ] Permanent physical air gap requirements.
+[ ] Required backup media prepared and labeled.
+[ ] Required online/watch-only environment prepared, if applicable.
+[ ] Disposable funds available for an end-to-end test, if applicable.
+[ ] User understands what private and public material each output contains.
+[ ] Enough uninterrupted time is available to finish creation, backup, verification, and storage.
+
+Keep software/environment instructions here rather than in generator.py.
+
+The Bitcoin Core Overlay Scaffold model is:
+
+1. verify software;
+2. prepare the physical air gap;
+3. prepare backup media and recovery environment;
+4. confirm the whole post-creation process before creating secrets;
+5. only then return to the launcher.
