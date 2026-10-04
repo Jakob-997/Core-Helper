@@ -9,11 +9,11 @@ ACCOUNT = 0
 PURPOSE = 87
 
 KEY_RE = re.compile(
-    r"^\\[([0-9a-fA-F]{8})/87(?:h|H|')/([01])(?:h|H|')/0(?:h|H|')\\]"
-    r"([1-9A-HJ-NP-Za-km-z]+)/<0;1>/\\*$"
+    r"^\[([0-9a-fA-F]{8})/87(?:h|H|')/([01])(?:h|H|')/0(?:h|H|')\]"
+    r"([1-9A-HJ-NP-Za-km-z]+)/<0;1>/\*$"
 )
 ORIGIN_RE = re.compile(
-    r"^\\[([0-9a-fA-F]{8})/87(?:h|H|')/([01])(?:h|H|')/0(?:h|H|')\\]$"
+    r"^\[([0-9a-fA-F]{8})/87(?:h|H|')/([01])(?:h|H|')/0(?:h|H|')\]$"
 )
 
 
@@ -35,7 +35,7 @@ def rpc(bitcoin_cli, method, *args, wallet=None, sensitive=False):
     if wallet is not None:
         cmd.append(f"-rpcwallet={wallet}")
     cmd.extend(["-stdin", method])
-    stdin = "".join(f"{arg}\\n" for arg in args)
+    stdin = "".join(f"{arg}\n" for arg in args)
 
     try:
         result = subprocess.run(
