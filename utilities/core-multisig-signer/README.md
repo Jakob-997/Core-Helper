@@ -2,6 +2,8 @@
 
 **Use Bitcoin Core as one signer in a BIP87 multisig quorum.**
 
+Built using the [Bitcoin Core Overlay Scaffold](../../templates/bitcoin-core-overlay-scaffold/): minimal Core-facing logic, a separate Tails launcher, and separate human/audit documentation.
+
 The utility creates one blank Core signer wallet, exports its public BIP87 account key as text + QR, then imports the completed multisig policy so the wallet can sign PSBTs as one member of the quorum.
 
 ## Quick start
