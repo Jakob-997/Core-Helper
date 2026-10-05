@@ -6,9 +6,9 @@ A collection of small, independent helper utilities for Bitcoin Core, optimized 
 
 - `utilities/export-account-xpub/` — export standard account-level extended public keys from a loaded Bitcoin Core wallet.
 - `utilities/import-bip39/` — import an English BIP39 mnemonic into a blank Bitcoin Core descriptor wallet.
-- [Bitcoin Core Multisig Quorum Signer](https://github.com/Jakob-997/Bitcoin-Core-Multisig-Quorum-Signer) — standalone project that creates one Bitcoin Core signer for a multisig quorum, supporting BIP87 and BIP48 native-P2WSH cosigners; pinned to Bitcoin Core v32.0rc2.
+- [Bitcoin Core Descriptor Signer](https://github.com/Jakob-997/Bitcoin-Core-Multisig-Quorum-Signer) — standalone Feature Overlay that creates one offline Bitcoin Core signer and attaches it to any public descriptor accepted by the pinned Core version, provided the descriptor contains that signer's exact account identity.
 
-The utilities hosted here are self-contained in their own folders with their own READMEs and dependencies. Bitcoin Core Multisig Quorum Signer is maintained in the standalone repository linked above; its former `utilities/core-multisig-signer/` copy has been removed.
+The utilities hosted here are self-contained in their own folders with their own READMEs and dependencies. Bitcoin Core Descriptor Signer is maintained in the standalone repository linked above; its former `utilities/core-multisig-signer/` copy has been removed.
 
 ## Bitcoin Core Feature Overlay
 
