@@ -1,48 +1,62 @@
 # Import BIP39
 
-Imports an English BIP39 mnemonic into a new Bitcoin Core 32.x descriptor wallet.
+A Bitcoin Core Feature Overlay for importing an English BIP39 mnemonic into a new Bitcoin Core descriptor wallet.
+
+The utility does not patch or fork Bitcoin Core. Its generator performs only BIP39 validation/seed conversion and the BIP32 master-key step that Core does not expose from BIP39 words. Bitcoin Core then owns the wallet, child derivation, descriptor construction, address generation, storage, and signing.
+
+## Security boundary
+
+Run the importer through `tails.sh`, not by executing the old importer directly.
+
+The launcher:
+
+1. requires the pinned Bitcoin Core archive below;
+2. disables NetworkManager networking and verifies that it is disabled;
+3. refuses to run alongside an existing Bitcoin Core process;
+4. verifies the exact Core archive SHA-256 before extraction;
+5. extracts Core into fresh `/dev/shm` runtime state and invokes it by absolute path;
+6. starts Core with `-networkactive=0 -listen=0`;
+7. creates a fresh output directory and refuses to overwrite an old run;
+8. runs a standard-library-only secret-handling generator;
+9. stops Bitcoin Core and exits the generator before loading the optional `qrcode` package;
+10. renders QR codes only from public descriptors.
+
+This is defense in depth, not a physical air gap.
+
+## Pinned Bitcoin Core
+
+This revision is pinned to the official Linux x86_64 Bitcoin Core **32.0rc2** archive:
+
+```text
+bitcoin-32.0rc2-x86_64-linux-gnu.tar.gz
+SHA256: 0255103718033e6aee15fa944717fc277e047b845bff1e7408af0ea732d8d0c1
+```
+
+Place that archive in this directory before going offline. The launcher does not download software.
 
 ## Run
 
 ```bash
-python3 utilities/import-bip39/import_bip39.py
+chmod +x tails.sh
+./tails.sh
 ```
 
-No wallet setup is required beforehand. The utility creates and loads the blank descriptor wallet itself.
+The fresh output is created at `wallet-output/`. It contains the Bitcoin Core wallet directory plus `public-descriptors.json`, which contains public data only.
 
-The flow is:
+## Files
 
-1. choose a wallet name
-2. optionally enter a Bitcoin Core wallet-encryption passphrase
-3. enter the BIP39 mnemonic
-4. optionally enter the BIP39 passphrase
-5. validate the BIP39 words and checksum
-6. derive the BIP32 master xprv
-7. create a blank descriptor wallet with private keys enabled
-8. if encrypted, unlock it briefly
-9. import the master key with Bitcoin Core `addhdkey`
-10. pass the returned master xpub explicitly as `hdkey` when creating every descriptor
-11. let Bitcoin Core create its standard legacy, nested SegWit, native SegWit, and Taproot descriptors
-12. immediately lock an encrypted wallet again
-13. print the public receive/change descriptors Core created
-14. display each public descriptor as a terminal QR
+- `generator.py` — minimal secret-handling logic; Python standard library only.
+- `launcher.py` — exact Core verification, offline state, fresh runtime, startup/shutdown.
+- `tails.sh` — minimal Tails entry point.
+- `render_qr.py` — public-data-only QR display process.
+- `bip39_english.txt` — BIP39 English wordlist.
+- `DESIGN.md`, `AUDITING.md`, `AUDIT.md` — architecture and review record.
+- `PRE-CREATION-GUIDE.txt`, `POST-CREATION-GUIDE.txt` — operational procedure.
+- `UPSTREAM.md` — Feature Overlay provenance.
+- `import_bip39.py` — compatibility stub that refuses the retired direct workflow.
 
-## Security design
+## Important limitations
 
-- the mnemonic is visible while typing so it can be reviewed and corrected
-- the BIP39 passphrase and wallet-encryption passphrase use hidden terminal input
-- the BIP39/BIP32 conversion uses only Python's standard library
-- the helper implements only BIP39 seed conversion and the BIP32 master-key step
-- Bitcoin Core performs child derivation, descriptor creation, address generation, and signing
-- sensitive RPC arguments are sent through Bitcoin Core's stdin mechanisms instead of command-line arguments
-- seed words and the optional BIP39 passphrase are never encoded into a QR
-- the QR output contains only the public descriptors returned by Bitcoin Core
-- the QR is rendered in the terminal; no QR image file or clipboard is used
-- an encrypted wallet is created encrypted from the start, rather than importing the key into an unencrypted wallet and encrypting afterward
-- no blockchain rescan is performed automatically
+Python object deletion is not guaranteed secure memory erasure. The design instead minimizes secret lifetime: the generator exits before QR code dependencies run.
 
-If the Bitcoin Core wallet-encryption passphrase is left blank, the new wallet is intentionally unencrypted and Bitcoin Core will store its private-key material accordingly.
-
-The bundled `bip39_english.txt` is the official BIP39 English wordlist.
-
-References: BIP39, BIP32, Bitcoin Core 32.x `createwallet`, `addhdkey`, `createwalletdescriptor`, `walletpassphrase`, and `walletlock`.
+The launcher cannot prove firmware, hardware, Tails media, CPU, keyboard, display, or the physical environment are trustworthy. Perform an independent recovery test before relying on the wallet.

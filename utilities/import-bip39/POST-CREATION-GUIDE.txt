@@ -1,0 +1,30 @@
+BIP39 IMPORT - POST-CREATION GUIDE
+
+The import is complete only after backup and recovery are verified.
+
+1. The fresh output is in:
+   wallet-output/
+
+   It contains the Bitcoin Core wallet plus public-descriptors.json.
+
+2. public-descriptors.json and the terminal QR codes are public wallet data. They cannot spend by themselves, but exposing an xpub/descriptor can reveal wallet history and address linkage.
+
+3. The BIP39 mnemonic plus optional BIP39 passphrase remains the independent root backup. Store it using your intended cold-storage procedure.
+
+4. If the Core wallet is encrypted, back up the Core wallet-encryption passphrase separately.
+
+5. Export/copy public descriptors to the watch-only system only through your intended transfer channel. QR rendering occurs after the secret-handling process and Bitcoin Core have stopped.
+
+6. Perform an independent recovery test before using meaningful funds:
+   - use a disposable mnemonic or disposable funds first;
+   - record a receive address from the generated wallet;
+   - remove the generated wallet from the test environment;
+   - rerun the import from the seed and optional BIP39 passphrase;
+   - verify the same descriptors and addresses are reproduced;
+   - for a full test, receive and spend disposable funds.
+
+7. Keep the exact software revision and Core pin with your operational records.
+
+8. Shut down the Tails system after transferring the intended public data and storing the wallet output. Do not reconnect the seed-entry environment merely for convenience.
+
+Limitations: software cannot prove the laptop firmware, CPU, keyboard, display, storage controller or boot environment is trustworthy. Python also does not promise cryptographic memory wiping.

@@ -1,0 +1,32 @@
+BIP39 IMPORT - PRE-CREATION GUIDE
+
+This workflow handles a wallet root secret. Treat the machine and room accordingly.
+
+1. Use a dedicated, physically air-gapped laptop for meaningful funds. Prefer hardware with Wi-Fi/Bluetooth/network hardware physically removed or permanently disabled. The software network shutdown is defense in depth, not a substitute for the physical air gap.
+
+2. Boot a Tails image whose authenticity you independently verified. Do not connect the offline system to a network during or after seed entry.
+
+3. On a separate connected preparation machine, obtain:
+   bitcoin-32.0rc2-x86_64-linux-gnu.tar.gz
+   SHA256:
+   0255103718033e6aee15fa944717fc277e047b845bff1e7408af0ea732d8d0c1
+
+   Place that archive in the same directory as tails.sh before moving the utility to the offline machine. The launcher verifies the hash and does not download software.
+
+4. Review README.md, DESIGN.md and AUDIT.md. Confirm you are running the exact revision you intended to review.
+
+5. Have the BIP39 mnemonic and, if used, the BIP39 passphrase available privately. A BIP39 passphrase typo creates a different valid wallet.
+
+6. Decide whether to use Bitcoin Core wallet encryption. For real funds, use a strong passphrase and back it up separately. It protects the Core wallet file; it does not replace the seed backup.
+
+7. Close any other Bitcoin Core process before starting.
+
+8. The launcher creates wallet-output/ exactly once and refuses to overwrite it.
+
+9. Run:
+   chmod +x tails.sh
+   ./tails.sh
+
+10. The mnemonic is intentionally visible while typed so it can be reviewed. Ensure nobody, no camera, and no remote display can observe the screen.
+
+Do not use meaningful funds until you have completed an independent recovery test as described in POST-CREATION-GUIDE.txt and AUDITING.md.
